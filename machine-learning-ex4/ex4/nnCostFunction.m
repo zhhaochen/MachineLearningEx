@@ -83,14 +83,6 @@ J_2 = Theta1(:, 2:end1).*Theta1(:, 2:end1);
 J_3 = Theta2(:, 2:end2).*Theta2(:, 2:end2);
 J = sum(J_1(:))+lambda*(sum(J_2(:))+sum(J_3(:)))/2/(m); 
 
-% %   ·´Ïò´«²¥ÇóÌÝ¶È
-% for i = 1:m
-%     delta3(i,:) = h(i,:)-class_y(i,:);  %Îó²îÂÊ (1, 10)
-%     Theta2_grad = Theta2_grad+delta3(i,:)'*a2(i,:); %Ç°Ò»²ã£¬ %(10, 26)
-%     delta2(i,:) = (delta3(i,:)*Theta2_x).*sigmoidGradient(z2(i,:)); %(1, 25)
-%     Theta1_grad = Theta1_grad+delta2(i,:)'*a1(i,:); %(25, 401)
-% end
-
 % 循环进行逐个数据计算
 for i = 1:m
   a1 = [1 X(i, :)]; %(1, 401)
@@ -103,7 +95,6 @@ for i = 1:m
   delta2 = (delta3*Theta2(:, 2:end2)).*sigmoidGradient(z2); %(1, 25)
   Theta1_grad = Theta1_grad + delta2'*a1; %(25, 401) 
 end
-
 
     
 Theta1(:,1) = 0;
