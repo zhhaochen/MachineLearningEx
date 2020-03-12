@@ -17,13 +17,13 @@ function [J grad] = nnCostFunction(nn_params, ...
 % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
 % for our 2 layer neural network
 Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
-                 hidden_layer_size, (input_layer_size + 1));    %还原到初始的Theta1
+                 hidden_layer_size, (input_layer_size + 1));    %(25, 401)
 
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
-                 num_labels, (hidden_layer_size + 1));
+                 num_labels, (hidden_layer_size + 1));  %(10, 26)
 
 % Setup some useful variables
-m = size(X, 1); %行数
+m = size(X, 1); %脨脨脢媒
          
 % You need to return the following variables correctly 
 J = 0;
@@ -62,16 +62,11 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-Theta1_x = Theta1(:,(2:end));   %去掉theta1(0)
-Theta2_x = Theta2(:,(2:end));   %去掉theta2(0)
-regterm = [Theta1_x(:);Theta2_x(:)]'*[Theta1_x(:);Theta2_x(:)]; %theta的平方
-
-class_y = zeros(m,num_labels);  %映射为0,1，主要后面求J中使用
+class_y = zeros(m,num_labels);  %(5000, 10)
 for i = 1:num_labels
     class_y(:,i) = y==i;
 end
 
-%  正向传播
 a1 = [ones(m,1),X]; %(5000, 401)
 z2 = a1*Theta1'; %(5000, 25)
 a2 = sigmoid(z2); % (5000, 25)
@@ -79,29 +74,41 @@ a2 = [ones(m,1),a2]; %(5000, 26)
 z3 = a2*Theta2'; %(5000, 10)
 h = sigmoid(z3); %(5000, 10)
 
-%  求代价函数
-J = -((class_y(:)'*(log(h(:)))) + ((1-class_y(:))'*(log(1-h(:))))-(lambda*regterm/2))/m;
+end1 = size(Theta1, 2); %401
+end2 = size(Theta2, 2); %26
 
-%   反向传播求梯度
+
+J_1 = ([log(h) log(1-h)].*[class_y 1-class_y])/(-m);
+J_2 = Theta1(:, 2:end1).*Theta1(:, 2:end1);
+J_3 = Theta2(:, 2:end2).*Theta2(:, 2:end2);
+J = sum(J_1(:))+lambda*(sum(J_2(:))+sum(J_3(:)))/2/(m); 
+
+% %   路麓脧貌麓芦虏楼脟贸脤脻露脠
+% for i = 1:m
+%     delta3(i,:) = h(i,:)-class_y(i,:);  %脦贸虏卯脗脢 (1, 10)
+%     Theta2_grad = Theta2_grad+delta3(i,:)'*a2(i,:); %脟掳脪禄虏茫拢卢 %(10, 26)
+%     delta2(i,:) = (delta3(i,:)*Theta2_x).*sigmoidGradient(z2(i,:)); %(1, 25)
+%     Theta1_grad = Theta1_grad+delta2(i,:)'*a1(i,:); %(25, 401)
+% end
+
+% 寰幆杩涜閫愪釜鏁版嵁璁＄畻
 for i = 1:m
-    delta3(i,:) = h(i,:)-class_y(i,:);  %误差率 (1, 10)
-    Theta2_grad = Theta2_grad+delta3(i,:)'*a2(i,:); %前一层， %(10, 26)
-    delta2(i,:) = (delta3(i,:)*Theta2_x).*sigmoidGradient(z2(i,:)); %(1, 25)
-    Theta1_grad = Theta1_grad+delta2(i,:)'*a1(i,:); %(25, 401)
+  a1 = [1 X(i, :)]; %(1, 401)
+  z2 = a1*Theta1'; %(1, 25)
+  a2 = [1 sigmoid(z2)]; %(1, 26)
+  z3 = a2*Theta2'; %(1, 10)
+  h = sigmoid(z3); %(1, 10)
+  delta3 = h - class_y(i,:); %(1, 10)
+  Theta2_grad = Theta2_grad + delta3'*a2; %(10, 26)
+  delta2 = (delta3*Theta2(:, 2:end2)).*sigmoidGradient(z2); %(1, 25)
+  Theta1_grad = Theta1_grad + delta2'*a1; %(25, 401) 
 end
-
-
 
 
     
 Theta1(:,1) = 0;
 Theta2(:,1) = 0;
 
-% -------------------------------------------------------------
-
-% =========================================================================
-
-% Unroll gradients
 grad = ([Theta1_grad(:);Theta2_grad(:)]+lambda*[Theta1(:);Theta2(:)])/m;
 
 
