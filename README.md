@@ -2,6 +2,8 @@ Machine Learning Exercises
 ======
 Coursera斯坦福大学机器学习编程作业
 
+[机器学习课程参考笔记]( http://www.ai-start.com/ml2014/ )
+
 ### 1. [machine-learning-ex1][1]
  - 线性回归
  - 梯度下降
